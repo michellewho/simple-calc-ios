@@ -13,12 +13,23 @@ class ViewController: UIViewController {
     var ops: [String] = []
     var newExp = false
     var inProgress = false
+    var exp: String = ""
+    var history: [String] = []
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "HistorySegue") {
+            if let destination = segue.destination as? HistoryViewController {
+            destination.history = self.history
+            }
+        }
+    }
+        
 
     @IBOutlet weak var output: UILabel!
     
@@ -28,6 +39,7 @@ class ViewController: UIViewController {
         // numbers displaying in output label
         if (output.text != "" && !inProgress) {
             nums.append(Int(output.text!)!)
+            exp += output.text! + " "
         }
         
         // cases: op is +-*/, op is =, op is avg/count/fact
@@ -35,15 +47,25 @@ class ViewController: UIViewController {
             output.text = op
             ops.append(op!)
             inProgress = true
+            exp += output.text! + " "
         } else if (op == "=" && output.text != ""){ // op is "="
             output.text = String(calculate())
-            nums = []
-            ops = []
-            
+            exp += "= " + output.text!
+            history.append(exp)
+            newExp = true
+            print(history)
         }
     }
     
     @IBAction func numbers(_ sender: UIButton) {
+        if (newExp) {
+            nums = []
+            ops = []
+            inProgress = true
+            exp = ""
+            newExp = false
+        }
+        
         // first time: input number - set output text to number
         if (!inProgress) {
             output.text = output.text! + sender.titleLabel!.text!
@@ -106,6 +128,7 @@ class ViewController: UIViewController {
         ops = []
         newExp = false
         inProgress = false
+        exp = ""
         
     }
 }
